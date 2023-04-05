@@ -2,17 +2,17 @@
 
 Hashbrown is a file encryption protocol, storing hashes of file blocks on distributed ledgers.
 
-- [structured workflow](#mechanism) for Division of files into smaller parts for efficient storage and retrieval. Hash of file is retrieved beforehand for data integrity verification.
-- centralized servers with multiple buckets to randomly distribute file parts.
-- storing file hash and part location on a smart contract for tamper-resistance and auditability.
-- access control and authentication mechanisms to ensure secure access to file parts.
+- [Structured workflow](#mechanism) for Division of files into smaller parts for efficient storage and retrieval. Hash of file is retrieved beforehand for data integrity verification.
+- Centralized servers with multiple buckets to randomly distribute file parts.
+- Storing file hash and part location on a smart contract for tamper-resistance and auditability.
+- Access control and authentication mechanisms to ensure secure access to file parts.
 
 Project goals:
 
 1. Improved data security --- AES encryption and smart contracts.
 1. Reduced risk of data corruption due to distributed storage across multiple servers.
 1. Improved data retrieval time and efficiency -- Through file division and distributed storage.
-1. Enhanced data privacy --> Implement access control and authentication mechanisms.
+1. Enhanced data privacy -- Implement access control and authentication mechanisms.
 
 
 [Check out the Demo...](https://hashbrown.it/)
@@ -26,7 +26,10 @@ Project goals:
 Notes:
 
 <a name="mechanism"></a>
-## Mechanisms
+## How does it work?
+
+### Processing Pipeline
+
 The process involves sending a request to a smart contract with file ID and permissions for storage, followed by encryption, splitting, and storage of parts in buckets on centralized servers. The file hash is also stored on the contract. To retrieve the file, the user combines parts and obtains a decryption key from the contract after permission verification to decrypt and access the file.
 
 ```
@@ -48,6 +51,36 @@ Encryption
 └────────────────────┘              └─────────────┘              └────────────┘
                                                                       Retrieval
 ◄──────────────────────────────────────────────────────────────────────────────
+```
+
+
+### Embeded Security Protocols
+
+Hashbrown uses a permissioned blockchain to store encrypted key data and access control information. The files are encrypted using the Advanced Encryption Standard (AES) algorithm and are split into smaller parts using a sharding algorithm, and each part is stored on a different node in the network. Access to the encrypted files is controlled by the key stored on the blockchain, and only authorized parties with the correct key can access the files.
+
+```solidity
+
+const encryptedParts = fileParts.map(part => {
+  return CryptoJS.AES.encrypt(part.toString('base64'), secretKey).toString();
+});
+
+const uploadPromises = encryptedParts.map(async (part, index) => {
+  const serverUrl = serverUrls[index % serverUrls.length];
+  const formData = new FormData();
+  formData.append('file', new Blob([part], { type: 'text/plain' }), `part-${index}.txt`);
+
+  try {
+    await axios.post(serverUrl, formData, {
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+      },
+    });
+    console.log(`Uploaded part ${index} to ${serverUrl}`);
+  } catch (error) {
+    console.error(`Failed to upload part ${index} to ${serverUrl}: ${error.message}`);
+  }
+});
+
 ```
 
 ## Q&A 
