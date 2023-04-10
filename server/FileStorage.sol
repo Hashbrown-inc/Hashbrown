@@ -29,4 +29,4 @@ contract FileStorage {
         require(!serverPerms.isServerAllowed(msg.sender), "Only registered servers are allowed to remove files");
         files[fileId].isDeleted = true;
     }
-}
+ }
