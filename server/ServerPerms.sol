@@ -3,40 +3,26 @@ pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-contract ServerPerms {
-    address public admin;
-    AggregatorV3Interface private oracle;
-    mapping(address => bool) private servers;
+contract FileStorage {
+    struct FileInfo {
+        string fileHash;
+        string[] serverUrls;
+        bool isDeleted;
+    }
 
-    event ServerAdded(address server);
-    event ServerRemoved(address server);
+    mapping(string => FileInfo) private files;
+    AggregatorV3Interface private oracle;
 
     constructor(address oracleAddress) {
-        admin = msg.sender;
         oracle = AggregatorV3Interface(oracleAddress);
     }
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Only the admin can perform this action");
-        _;
-    }
+    // ...
 
-    function addServer(address server) external onlyAdmin {
-        require(!servers[server], "Server is already registered");
-        servers[server] = true;
-        emit ServerAdded(server);
-    }
-
-    function removeServer(address server) external onlyAdmin {
-        require(servers[server], "Server is not registered");
-        servers[server] = false;
-        emit ServerRemoved(server);
-    }
-
-    function isServerAllowed(address server) public view returns (bool) {
-        // Request server access status from the oracle.
-        // The oracle should return 1 for allowed servers and 0 for disallowed servers.
+    function isUserAllowed(string memory fileId, address user) private view returns (bool) {
+        // Request user access status from the oracle.
+        // The oracle should return 1 for allowed users and 0 for disallowed users.
         (, int256 accessStatus, , , ) = oracle.latestRoundData();
-        return accessStatus == 1 && servers[server];
+        return accessStatus == 1;
     }
 }
