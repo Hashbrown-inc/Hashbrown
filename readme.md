@@ -21,7 +21,7 @@ Project goals:
 
 - Make sure the latest version of [Node.js](https://nodejs.org/) was installed (Homebrew: `brew install nodejs`)
 - First time setup: `npm install`
-- Build it all and run local dev server: `node start`
+- Build it all and run local dev server: `npm start`
 - view in a web browser at localhost:3000
 
 Notes:
