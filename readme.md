@@ -24,7 +24,6 @@ Project goals:
 - Build it all and run local dev server: `npm start`
 - view in a web browser at localhost:3000
 
-Notes:
 
 <a name="mechanism"></a>
 ## How does it work?
