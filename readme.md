@@ -100,3 +100,6 @@ Current IPFS system has some major flaws:
 - Shuffle file location every use
 - Incorporate key permission system
 
+## Testing strategy
+We used manual testing to test the front-end features of our website, as it was the most efficient method, given our time constraints and our small website which only has two pages. We also used manual testing to test our file encryption protocol. We did not do unit testing as our project is very small in scope and we did not plan to build a lot of features on top of other features, so adding unit tests was not necessary. We tested our file encryption protocol as well as our website thoroughly and made sure all the features work. If the project grows in scope and scale later, some automated testing might be needed for the sake of efficiency.
+
