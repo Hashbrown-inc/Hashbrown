@@ -24,6 +24,7 @@ socket.on('uploadSuccess', (data) => {
     status.textContent = `Upload complete. File names: \n ${data.names}`;
 });
 
+
 async function encryptAndUpload() {
     const fileInput = document.getElementById('file-input');
     const file = fileInput.files[0];
@@ -69,8 +70,6 @@ async function encryptAndUpload() {
         const encryptedBase64 = CryptoJS.AES.encrypt(partBase64, secretKey).toString();
         return new Uint8Array(base64ToArrayBuffer(encryptedBase64));
     });
-
-
 
     // for each part upload
     socket.emit('upload', { encryptedParts });
