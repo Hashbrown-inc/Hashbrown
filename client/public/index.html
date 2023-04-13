@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="/public/favicon-apple-touch.png" rel="apple-touch-icon" type="svg" sizes="144x144" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.svg" width="32" height="32" type="image/svg+xml" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
+    integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="client.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="./raster.css" />
+    <link rel="stylesheet" type="text/css" href="https://rsms.me/inter/inter-display.css" />
+    <link rel="stylesheet" type="text/css" href="/res/font/jbmono.css?cx=1612221840" />
+    <link href="https://fonts.googleapis.com/css?family=JetBrains Mono" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono" rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./playground.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          colors: {
+            white: "#FFFFFF",
+            yellow: "#FCCD26",
+            brown: "#BD7D00",
+            yellowbrown: "#7C5C1B",
+          },
+          extend: {},
+        },
+        fontFamily: {
+          mono: ["JetBrains Mono", "monospace"],
+        },
+      };
+    </script>
+    <title>Hashbrown Playground</title>
+  </head>
+  <body>
+    <div class="playground">
+      <h1 class="playgroundTitle">Playground</h1>
+      <r-grid columns="6" columns-s="2">
+        <r-cell span="2">
+          <div class="pe-4">
+            <!--Regular file upload -->
+            <h4 class="pb-2 tracking-normal">File Upload</h4>
+            
+            <div class="flex items-start justify-center w-full font-mono">
+              <label
+                for="file-input"
+                class="flex flex-col items-start justify-center w-full border-2 border-gray-300 border-none rounded-md cursor-pointer bg-white">
+                <p id="file-name" class="text-sm font-medium text-gray-100 p-4 tracking-normaler opacity-50">
+                  Upload some file here. Max 5MB in size.
+                </p>
+                <input type="file" id="file-input" name="file" class="hidden" onchange="showFileName()" />
+              </label>
+            </div>
+
+            <button
+              class="block w-50 py-3 px-6 mt-4 text-white rounded-lg bg-gray-50 outline-0 sm:text-md transition duration-300 ease-in-out bg-brown hover:scale-95"
+              onclick="encryptAndUpload()">
+              Whoosh!
+            </button>
+
+            <!--File Hash here-->
+            <h4 class="pb-2 pt-4 tracking-normal">File Hash</h4>
+            <div class="flex items-start justify-center w-full font-mono">
+              <p
+                class="block w-full p-4 text-gray-900 rounded-lg outline-0 sm:text-sm font-medium tracking-normal bg-white">
+                0
+              </p>
+            </div>
+
+            <!-- Gas Price here-->
+            <h4 class="pb-2 pt-4 tracking-normal">Gas Price</h4>
+            <div class="flex items-start justify-center w-full font-mono">
+              <p
+                class="block w-full p-4 text-gray-900 rounded-lg outline-0 sm:text-sm font-medium tracking-normaler bg-white opacity-90">
+                0
+              </p>
+            </div>
+
+            <hr class="border-gray-300 border-1 my-10" />
+
+            <div>
+              <h2 class="pb-6 tracking-normal font-medium text-lg">Download and Combine Files</h2>
+
+              <h4 class="pb-2 tracking-normal">Webserver</h4>
+              <div class="flex items-start justify-center w-full font-mono">
+                <input
+                  type="text"
+                  class="block w-full p-4 text-gray-900 rounded-lg outline-0 sm:text-sm font-medium tracking-normaler bg-white"
+                  placeholder="example.com"
+                  id="webserver"
+                  required />
+              </div>
+
+              <h4 class="pb-2 pt-4 tracking-normal">File Names (separated by commas)</h4>
+              <div class="flex items-start justify-center w-full font-mono">
+                <input
+                  type="text"
+                  class="block w-full p-4 text-gray-900 rounded-lg outline-0 sm:text-sm font-medium tracking-normaler bg-white"
+                  placeholder="file1,file2,file3"
+                  id="filenames"
+                  required />
+              </div>
+
+              <h4 class="pb-2 pt-4 tracking-normal">Key</h4>
+              <div class="flex items-start justify-center w-full font-mono">
+                <input
+                  type="text"
+                  class="block w-full p-4 text-gray-900 rounded-lg outline-0 sm:text-sm font-medium tracking-normaler bg-white"
+                  placeholder="Enter decryption key"
+                  id="key"
+                  required />
+              </div>
+              <button
+                class="block w-50 py-3 px-6 mt-4 text-white rounded-lg bg-gray-50 outline-0 sm:text-md transition duration-300 ease-in-out bg-brown hover:scale-95"
+                onclick="downloadfiles()"
+                type="submit">
+                Download and Combine Files
+              </button>
+            </div>
+          </div>
+        </r-cell>
+        <r-cell span="4" span-s="2" class="block">
+          <h4 class="pb-2 tracking-normal sub">Status</h4>
+          <div class="flex items-start justify-center font-mono">
+            <p
+              class="block w-full overflow-y-auto h-full p-4 text-gray-900 rounded-lg outline-0 sm:text-sm font-medium tracking-normaler bg-white"
+              opacity-90
+              id="status">
+              Ready.
+            </p>
+          </div>
+        </r-cell>
+      </r-grid>
+    </div>
+
+    <script>
+      function showFileName() {
+        var fileInput = document.getElementById("file-input");
+        var fileName = document.getElementById("file-name");
+        fileName.innerHTML = fileInput.files[0].name;
+      }
+    </script>
+  </body>
+</html>
